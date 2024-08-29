@@ -62,3 +62,8 @@
 
 ## 画面遷移図
 Figma：https://www.figma.com/design/PkVE1NMV5eKufo8jTMuWX0/%E5%87%BA%E4%BC%9A%E3%81%84%E6%97%85?node-id=0-1&t=eVsh6LW19WkpwOjt-1
+
+## ER図
+https://drive.google.com/file/d/1KN3SMF4wHev2RbSZUJWRfboJbVhChBcN/view?usp=sharing
+
+[![Image from Gyazo](https://i.gyazo.com/1b03a10a3a26addfe60e22956a4ae138.png)](https://gyazo.com/1b03a10a3a26addfe60e22956a4ae138)
