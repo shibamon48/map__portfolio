@@ -2,11 +2,11 @@ Rails.application.routes.draw do
   resources :users, only: %i[new edit show create destroy]
   root "tops#index"
 
-  get 'map' => 'maps#new', :as => :map
+  get "map" => "maps#new", :as => :map
 
-  get 'login' => 'user_sessions#new', :as => :login
-  post 'login' => "user_sessions#create"
-  post 'logout' => 'user_sessions#destroy', :as => :logout
+  get "login" => "user_sessions#new", :as => :login
+  post "login" => "user_sessions#create"
+  post "logout" => "user_sessions#destroy", :as => :logout
 
   get "up" => "rails/health#show", as: :rails_health_check
 

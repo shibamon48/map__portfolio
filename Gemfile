@@ -28,9 +28,9 @@ gem "jbuilder"
 # gem "bcrypt", "~> 3.1.7"
 gem "sorcery"
 
-gem 'dotenv-rails'
+gem "dotenv-rails"
 
-gem 'gon'
+gem "gon"
 
 # Windows does not include zoneinfo files, so bundle the tzinfo-data gem
 gem "tzinfo-data", platforms: %i[ windows jruby ]
