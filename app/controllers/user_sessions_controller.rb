@@ -6,10 +6,10 @@ class UserSessionsController < ApplicationController
     @user = login(params[:email], params[:password])
 
     if @user
-      flash[:success] = 'Login successful'
+      flash[:success] = "Login successful"
       redirect_to :map
     else
-      flash.now[:error] = 'Login failed'
+      flash.now[:error] = "Login failed"
       render :new, status: :unprocessable_entity
     end
   end
