@@ -1,3 +1,5 @@
+const apiKey = gon.map_api_key
+
 let map;
 let drawingManager;
 let placeIdArray = [];
@@ -7,11 +9,12 @@ let snappedCoordinates = [];
 function initialize() {
   let mapOptions = {
     zoom: 17,
-    center: {lat: -33.8667, lng: 151.1955,}
+    center: {lat: -33.8667, lng: 151.1955,},
+    disableDefaultUI: true
   };
   map = new google.maps.Map(document.getElementById('map'), mapOptions);
 
-  // 検索バーを右上に表示
+  // 検索バーを右上に表示
   map.controls[google.maps.ControlPosition.RIGHT_TOP].push(
       document.getElementById('bar'));
   let autocomplete = new google.maps.places.Autocomplete(
@@ -46,20 +49,20 @@ function initialize() {
   drawingManager.setMap(map);
 
   // 完了ボタンを表示
-  // google.maps.event.addListener(drawingManager, 'polylinecomplete', function() {
-  //   completeButton = document.createElement('button');
-  //   completeButton.textContent = '完了';
-  //   completeButton.classList.add('btn');
+  google.maps.event.addListener(drawingManager, 'polylinecomplete', function() {
+    completeButton = document.createElement('button');
+    completeButton.textContent = '完了';
+    completeButton.classList.add('btn');
 
-  //   completeButton.addEventListener('click', function() {
-  //     alert('完了しました');
-  //     drawingManager.setDrawingMode(null);
-  //     completeButton.remove();
-  //   });
+    completeButton.addEventListener('click', function() {
+      alert('完了しました');
+      drawingManager.setDrawingMode(null);
+      completeButton.remove();
+    });
 
-  //   map.controls[google.maps.ControlPosition.BOTTOM_RIGHT].push(completeButton);
-  // }
-  // );
+    map.controls[google.maps.ControlPosition.BOTTOM_RIGHT].push(completeButton);
+  }
+  );
 
   // ポリラインを描画したらsnapToRoadを実行
   // poly=ポリライン、path=ポリラインの座標
@@ -87,36 +90,19 @@ function runSnapToRoad(path) {
   for (var i = 0; i < path.getLength(); i++) {
     pathValues.push(path.getAt(i).toUrlValue());
   }
-  fetch('/paths/fetch', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-    },
-    body: JSON.stringify({ path_values: pathValues })
-  })
-  .then(response => {
-    if (!response.ok) {
-      throw new Error('Network response was not ok');
-    }
-    return response.json();
-  })
-  .then(data => {
-    console.log(data);
-    processSnapToRoadResponse(data);
-    drawSnappedPolyline();
-  })
-  .catch(error => {
-    console.error('There has been a problem with your fetch operation:', error);
-  });
-}
+  fetch(`https://roads.googleapis.com/v1/snapToRoads?interpolate=true&key=${apiKey}&path=${pathValues.join('|')}`)
+    .then(response => response.json())
+    .then(data => {
+      processSnapToRoadResponse(data);
+      drawSnappedPolyline();
+    });
+  }
 
 // ポリラインをAPIに投げた結果を処理
 function processSnapToRoadResponse(data) {
   snappedCoordinates = [];
   placeIdArray = [];
-  console.log(data);    
-  for (var i = 0; i < data.snappedPoints.length; i++) {
+    for (var i = 0; i < data.snappedPoints.length; i++) {
       var latlng = new google.maps.LatLng(
           data.snappedPoints[i].location.latitude,
           data.snappedPoints[i].location.longitude);
