@@ -1,4 +1,5 @@
 Rails.application.routes.draw do
+  post "paths/fetch"
   resources :users, only: %i[new edit show create destroy]
   root "tops#index"
 
