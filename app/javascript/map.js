@@ -14,7 +14,7 @@ function initialize() {
   };
   map = new google.maps.Map(document.getElementById('map'), mapOptions);
 
-  // 検索バーを右上に表示
+  // 検索バーを右上に表示
   map.controls[google.maps.ControlPosition.RIGHT_TOP].push(
       document.getElementById('bar'));
   let autocomplete = new google.maps.places.Autocomplete(
@@ -30,9 +30,9 @@ function initialize() {
     }
   });
 
-  // 描画ツールを表示
+  // 描画ツールの設定
   drawingManager = new google.maps.drawing.DrawingManager({
-    drawingMode: google.maps.drawing.OverlayType.POLYLINE,
+    drawingMode: null,
     drawingControl: true,
     drawingControlOptions: {
       position: google.maps.ControlPosition.TOP_CENTER,
@@ -48,22 +48,6 @@ function initialize() {
   });
   drawingManager.setMap(map);
 
-  // 完了ボタンを表示
-  google.maps.event.addListener(drawingManager, 'polylinecomplete', function() {
-    completeButton = document.createElement('button');
-    completeButton.textContent = '完了';
-    completeButton.classList.add('btn');
-
-    completeButton.addEventListener('click', function() {
-      alert('完了しました');
-      drawingManager.setDrawingMode(null);
-      completeButton.remove();
-    });
-
-    map.controls[google.maps.ControlPosition.BOTTOM_RIGHT].push(completeButton);
-  }
-  );
-
   // ポリラインを描画したらsnapToRoadを実行
   // poly=ポリライン、path=ポリラインの座標
   drawingManager.addListener('polylinecomplete', function(poly) {
@@ -73,15 +57,41 @@ function initialize() {
     runSnapToRoad(path);
   });
 
-  // クリアボタンを押したら描画したポリラインを削除
-  document.getElementById('clear').addEventListener('click', function(event) {
-    event.preventDefault();
-    for (var i = 0; i < polylines.length; ++i) {
-      polylines[i].setMap(null);
-    }
-    polylines = [];
-    return false;
+  // // クリアボタンを押したら描画したポリラインを削除
+  // document.getElementById('clear').addEventListener('click', function(event) {
+  //   event.preventDefault();
+  //   for (var i = 0; i < polylines.length; ++i) {
+  //     polylines[i].setMap(null);
+  //   }
+  //   polylines = [];
+  //   return false;
+  // });
+}
+
+const start_button = document.getElementById('start');
+start_button.addEventListener('click', function() {
+  start_button.style.display = 'none';
+  drawingManager.setDrawingMode(google.maps.drawing.OverlayType.POLYLINE);
+  let completeButton;
+  if (!completeButton) { // 完了ボタンあれば表示しない
+    showCompleteButton();
+  }
+
+});
+
+// 描画モードになったら完了ボタンを表示
+function showCompleteButton() {
+  completeButton = document.createElement('button');
+  completeButton.textContent = '完了';
+  completeButton.classList.add('btn');
+
+  completeButton.addEventListener('click', function() {
+    alert('完了しました');
+    drawingManager.setDrawingMode(null);
+    completeButton.remove();
   });
+
+  map.controls[google.maps.ControlPosition.BOTTOM_CENTER].push(completeButton);
 }
 
 // ポリラインをAPIに投げて実際の道路にスナップさせ、描画
@@ -95,8 +105,9 @@ function runSnapToRoad(path) {
     .then(data => {
       processSnapToRoadResponse(data);
       drawSnappedPolyline();
+      start_button.style.display = 'block';
     });
-  }
+}
 
 // ポリラインをAPIに投げた結果を処理
 function processSnapToRoadResponse(data) {
