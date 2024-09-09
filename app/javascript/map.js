@@ -4,7 +4,10 @@ let map;
 let drawingManager;
 let placeIdArray = [];
 let polylines = [];
+let snappedPolylines = [];
 let snappedCoordinates = [];
+const start_button = document.getElementById('start');
+
 
 function initialize() {
   let mapOptions = {
@@ -57,27 +60,15 @@ function initialize() {
     runSnapToRoad(path);
   });
 
-  // // クリアボタンを押したら描画したポリラインを削除
-  // document.getElementById('clear').addEventListener('click', function(event) {
-  //   event.preventDefault();
-  //   for (var i = 0; i < polylines.length; ++i) {
-  //     polylines[i].setMap(null);
-  //   }
-  //   polylines = [];
-  //   return false;
-  // });
+  start_button.addEventListener('click', function() {
+    start_button.style.display = 'none';
+    drawingManager.setDrawingMode(google.maps.drawing.OverlayType.POLYLINE);
+    let completeButton;
+    if (!completeButton) { // 完了ボタンあれば表示しない
+      showCompleteButton();
+    }
+  });
 }
-
-const start_button = document.getElementById('start');
-start_button.addEventListener('click', function() {
-  start_button.style.display = 'none';
-  drawingManager.setDrawingMode(google.maps.drawing.OverlayType.POLYLINE);
-  let completeButton;
-  if (!completeButton) { // 完了ボタンあれば表示しない
-    showCompleteButton();
-  }
-
-});
 
 // 描画モードになったら完了ボタンを表示
 function showCompleteButton() {
@@ -132,7 +123,16 @@ function drawSnappedPolyline() {
   });
 
   snappedPolyline.setMap(map);
-  polylines.push(snappedPolyline);
+  snappedPolylines.push(snappedPolyline);
+  clearPolyline();
+}
+
+function clearPolyline() {
+  for (var i = 0; i < polylines.length; ++i) {
+    polylines[i].setMap(null);
+  }
+  polylines = [];
+  return false;
 }
 
 // ページ読み込み時にinitializeを実行
