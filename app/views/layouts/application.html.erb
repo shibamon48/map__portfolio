@@ -26,11 +26,11 @@
         <% if current_user %>
           <%= link_to "編集", edit_user_path(current_user.id) %>
           <%= link_to "Logout", :logout, data: { turbo_method: :post } %>
-          <%= link_to "Map", map_path %>
+          <%= link_to "Map", new_route_path %>
         <% else %>
           <%= link_to "会員登録", new_user_path %> |
           <%= link_to "Login", :login %>
-          <%= link_to "Map", map_path %>
+          <%= link_to "Map", new_route_path %>
         <% end %>
       </div>
     </header>

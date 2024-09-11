@@ -1,10 +1,12 @@
 const apiKey = gon.map_api_key
+let mypathValues = gon.mypathValues
 
 let map;
 let drawingManager;
 let placeIdArray = [];
 let polylines = [];
 let snappedPolylines = [];
+let snappedPathvalues = [];
 let snappedCoordinates = [];
 const start_button = document.getElementById('start');
 
@@ -17,6 +19,10 @@ function initialize() {
   };
   map = new google.maps.Map(document.getElementById('map'), mapOptions);
 
+  for ( let i = 0; i < mypathValues.length; i++) {
+    let snappedCoordinates = mypathValues[i];
+    drawSnappedPolyline();
+  }
   // 検索バーを右上に表示
   map.controls[google.maps.ControlPosition.RIGHT_TOP].push(
       document.getElementById('bar'));
@@ -86,6 +92,7 @@ function showCompleteButton() {
 }
 
 // ポリラインをAPIに投げて実際の道路にスナップさせ、描画
+// getAtでLatLngを取得, toUrlValueで緯度経度を文字列に変換
 function runSnapToRoad(path) {
   var pathValues = [];
   for (var i = 0; i < path.getLength(); i++) {
@@ -120,9 +127,11 @@ function drawSnappedPolyline() {
     strokeColor: '#add8e6',
     strokeWeight: 4,
     strokeOpacity: 0.9,
+    clickable: true
   });
 
   snappedPolyline.setMap(map);
+  savePolylines(snappedPolyline);
   snappedPolylines.push(snappedPolyline);
   clearPolyline();
 }
@@ -134,6 +143,29 @@ function clearPolyline() {
   polylines = [];
   return false;
 }
+
+function savePolylines(snappedPolyline) {
+  let snappedPath = snappedPolyline.getPath();
+  for(let i = 0; i < snappedPath.getLength(); i++) {
+      snappedPathvalues.push(snappedPath.getAt(i));
+  }
+  console.log(JSON.stringify(snappedPathvalues));
+  fetch('/route', {
+    method: "POST",
+    headers: {
+      'Content-Type': 'application/json',
+      'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]').content
+    },
+    body: JSON.stringify(snappedPathvalues),
+  })
+  .then(response => {
+    if (!response.ok) {
+      throw new Error('Network response was not ok');
+    }
+  })
+  .catch(error => console.error('Error:', error));
+}
+
 
 // ページ読み込み時にinitializeを実行
 window.addEventListener('load', initialize);
