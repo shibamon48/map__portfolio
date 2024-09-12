@@ -1,4 +1,4 @@
-require 'google_maps_service/polyline' 
+require "google_maps_service/polyline"
 
 class RoutesController < ApplicationController
   skip_before_action :require_login, only: %i[ new ]
@@ -23,9 +23,9 @@ class RoutesController < ApplicationController
     pathValues = params[:_json]
     polylines = []
     latlng = []
-    
+
     pathValues.each do |path|
-      latlng = [path["lat"],path["lng"]]
+      latlng = [ path["lat"], path["lng"] ]
       polylines.push(latlng)
     end
     encoded_path = GoogleMapsService::Polyline.encode(polylines)
@@ -38,5 +38,4 @@ class RoutesController < ApplicationController
   def route_params
     params.permit(:_json)
   end
-
 end
