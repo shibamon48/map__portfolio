@@ -1,2 +1,0 @@
-class ExplorationRoute < ApplicationRecord
-end

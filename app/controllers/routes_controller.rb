@@ -7,7 +7,7 @@ class RoutesController < ApplicationController
     @user = current_user
     gon.map_api_key = ENV["MAP_API_KEY"]
 
-    routes = Route.all
+    routes = Route.where(user_id: @user.id) if @user
     pathValues = []
     if routes.present?
       routes.each do |route|
@@ -20,6 +20,7 @@ class RoutesController < ApplicationController
 
   def create
     # {"lat":35.681236, "lng":139.767125}のようなJSON形式を受け取る
+    user = current_user
     pathValues = params[:_json]
     polylines = []
     latlng = []
@@ -30,7 +31,7 @@ class RoutesController < ApplicationController
     end
     encoded_path = GoogleMapsService::Polyline.encode(polylines)
 
-    path = Route.new(path: encoded_path)
+    path = Route.new(path: encoded_path, user_id: user.id)
     path.save!
   end
 

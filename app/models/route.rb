@@ -1,4 +1,5 @@
 class Route < ApplicationRecord
-  has_many :exploration_routes, dependent: :destroy
-  has_many :users, through: :exploration_routes
+  belongs_to :user
+
+  validates :user_id, presence: true
 end
