@@ -2,7 +2,9 @@ Rails.application.routes.draw do
   resources :users, only: %i[new edit show create destroy]
   root "tops#index"
 
+  resource :route, only: %i[new index create]
   get "map" => "maps#new", :as => :map
+  post "map" => "map#create"
 
   get "login" => "user_sessions#new", :as => :login
   post "login" => "user_sessions#create"

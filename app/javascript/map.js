@@ -1,10 +1,12 @@
 const apiKey = gon.map_api_key
-
+let mypathValues = gon.mypathValues
+console.log(mypathValues);
 let map;
 let drawingManager;
 let placeIdArray = [];
 let polylines = [];
-let snappedPolylines = [];
+var snappedPolylines = [];
+let snappedPathvalues = [];
 let snappedCoordinates = [];
 const start_button = document.getElementById('start');
 
@@ -16,6 +18,13 @@ function initialize() {
     disableDefaultUI: true
   };
   map = new google.maps.Map(document.getElementById('map'), mapOptions);
+
+  if (mypathValues != null) {
+      for ( let i = 0; i < mypathValues.length; i++) {
+        let snappedCoordinates = mypathValues[i];
+        drawSnappedPolyline(snappedCoordinates);
+      }
+  }
 
   // 検索バーを右上に表示
   map.controls[google.maps.ControlPosition.RIGHT_TOP].push(
@@ -36,7 +45,7 @@ function initialize() {
   // 描画ツールの設定
   drawingManager = new google.maps.drawing.DrawingManager({
     drawingMode: null,
-    drawingControl: true,
+    drawingControl: false,
     drawingControlOptions: {
       position: google.maps.ControlPosition.TOP_CENTER,
       drawingModes: [
@@ -70,22 +79,24 @@ function initialize() {
   });
 }
 
-// 描画モードになったら完了ボタンを表示
 function showCompleteButton() {
-  completeButton = document.createElement('button');
-  completeButton.textContent = '完了';
-  completeButton.classList.add('btn');
+    const complete = document.getElementById('complete');
+    complete.style.display = 'block';
 
-  completeButton.addEventListener('click', function() {
-    alert('完了しました');
-    drawingManager.setDrawingMode(null);
-    completeButton.remove();
-  });
-
-  map.controls[google.maps.ControlPosition.BOTTOM_CENTER].push(completeButton);
+    complete.addEventListener('click', completed);
 }
 
+function completed() {
+  alert('完了しました');
+  drawingManager.setDrawingMode(null);
+  const complete = document.getElementById('complete');
+  complete.style.display = 'none';
+  complete.removeEventListener('click', completed);
+}
+
+
 // ポリラインをAPIに投げて実際の道路にスナップさせ、描画
+// getAtでLatLngを取得, toUrlValueで緯度経度を文字列に変換
 function runSnapToRoad(path) {
   var pathValues = [];
   for (var i = 0; i < path.getLength(); i++) {
@@ -95,8 +106,10 @@ function runSnapToRoad(path) {
     .then(response => response.json())
     .then(data => {
       processSnapToRoadResponse(data);
-      drawSnappedPolyline();
+      drawSnappedPolyline(snappedCoordinates);
       start_button.style.display = 'block';
+      savePolylines(snappedPolyline);
+      clearPolyline();
     });
 }
 
@@ -108,23 +121,22 @@ function processSnapToRoadResponse(data) {
       var latlng = new google.maps.LatLng(
           data.snappedPoints[i].location.latitude,
           data.snappedPoints[i].location.longitude);
-      snappedCoordinates.push(latlng);
-      placeIdArray.push(data.snappedPoints[i].placeId);
+      snappedCoordinates.push(latlng);    
   };
 }
 
 //　スナップされたポリラインを描画 
-function drawSnappedPolyline() {
-  var snappedPolyline = new google.maps.Polyline({
+function drawSnappedPolyline(snappedCoordinates) {
+  console.log(snappedCoordinates);
+    snappedPolyline = new google.maps.Polyline({
     path: snappedCoordinates,
-    strokeColor: '#add8e6',
-    strokeWeight: 4,
-    strokeOpacity: 0.9,
+    strokeColor: '#4169e1',
+    strokeWeight: 7,
+    strokeOpacity: 0.6,
+    clickable: true
   });
 
   snappedPolyline.setMap(map);
-  snappedPolylines.push(snappedPolyline);
-  clearPolyline();
 }
 
 function clearPolyline() {
@@ -133,6 +145,27 @@ function clearPolyline() {
   }
   polylines = [];
   return false;
+}
+
+function savePolylines(snappedPolyline) {
+  let snappedPath = snappedPolyline.getPath();
+  for(let i = 0; i < snappedPath.getLength(); i++) {
+      snappedPathvalues.push(snappedPath.getAt(i));
+  }
+  fetch('/route', {
+    method: "POST",
+    headers: {
+      'Content-Type': 'application/json',
+      'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]').content
+    },
+    body: JSON.stringify(snappedPathvalues),
+  })
+  .then(response => {
+    if (!response.ok) {
+      throw new Error('Network response was not ok');
+    }
+  })
+  .catch(error => console.error('Error:', error));
 }
 
 // ページ読み込み時にinitializeを実行

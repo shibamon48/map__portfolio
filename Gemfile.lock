@@ -121,7 +121,12 @@ GEM
       i18n (>= 0.7)
       multi_json
       request_store (>= 1.0)
+    google_maps_service (0.4.2)
+      hurley (~> 0.1)
+      multi_json (~> 1.11)
+      retriable (~> 2.0)
     hashie (5.0.0)
+    hurley (0.2)
     i18n (1.14.5)
       concurrent-ruby (~> 1.0)
     io-console (0.7.2)
@@ -255,6 +260,7 @@ GEM
       io-console (~> 0.5)
     request_store (1.7.0)
       rack (>= 1.4)
+    retriable (2.1.0)
     rexml (3.3.6)
       strscan
     rubocop (1.65.1)
@@ -355,6 +361,7 @@ DEPENDENCIES
   debug
   dotenv-rails
   gon
+  google_maps_service
   jbuilder
   jsbundling-rails
   pg (~> 1.5)
