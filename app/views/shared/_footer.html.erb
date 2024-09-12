@@ -1,7 +1,11 @@
 <footer id="footer" class="footer footer-center fixed bottom-0 left-0 bg-primary h-16 text-primary-content p-10">
     <div class="grid grid-flow-col gap-4 items-center ">
-      <p>マップ</p>
+      <%= link_to "マップ", new_route_path %>
       <p>リスト</p>
-      <p>マイページ</p>
+      <% if @user %>
+        <%= link_to "マイページ", edit_user_path(@user) %>
+      <% else %>
+        <%= link_to "会員登録", new_user_path %>
+      <% end %>
     </div>
 </footer>

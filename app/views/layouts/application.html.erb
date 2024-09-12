@@ -22,12 +22,9 @@
 
   <body>
     <%= render "shared/flash_messages" %>
-    
-    <p id="notice"><%= flash[:notice] %></p>
-    <p id="alert"><%= flash[:alert] %></p>
 
     <%= yield %>
-    <% if current_page?(controller: "routes", action: "new") %>
+    <% if current_page_ok?(controller_name, action_name) %>
       <%= render "shared/footer" %>
     <% end %>
   </body>

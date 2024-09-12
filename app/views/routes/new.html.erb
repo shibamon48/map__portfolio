@@ -1,19 +1,21 @@
 <div class="container relative flex h-screen w-screen">
   <div id="map" class="w-full">
   </div>
-  <div class="absolute bottom-20 right-2">
-    <button id="start" class="bg-blue-500 w-16 h-16 inline-block rounded-full">作成
-    </button>
-  </div>
-  <div class="absolute bottom-20 left-1/2 transform -translate-x-1/2">
-    <button id="complete" class="hidden bg-white w-16 h-16 inline-block rounded-full">完了
-    </button>
-  </div>
+  <% if logged_in? %>
+    <div class="absolute bottom-[100px] right-2">
+      <button id="start" class="bg-blue-500 w-16 h-16 inline-block rounded-full">作成
+      </button>
+    </div>
+    <div class="absolute bottom-20 left-1/2 transform -translate-x-1/2">
+      <button id="complete" class="hidden bg-white w-16 h-16 inline-block rounded-full">完了
+      </button>
+    </div>
+<% end %>
 </div>
 
 
 
-<script async src="https://maps.googleapis.com/maps/api/js?key=<%= ENV["MAP_API_KEY"] %>&libraries=drawing,places,marker&callback=initMap" async defer>
+<script async defer src="https://maps.googleapis.com/maps/api/js?key=<%= ENV["MAP_API_KEY"] %>&libraries=drawing,places,marker&callback=initMap">
 </script>
 
 <%= include_gon %>

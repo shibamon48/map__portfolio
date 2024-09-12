@@ -10,8 +10,12 @@ let snappedPathvalues = [];
 let snappedCoordinates = [];
 const start_button = document.getElementById('start');
 
+document.addEventListener('turbo:load', function() {
+  initMap();
+});
 
-function initialize() {
+
+function initMap() {
   let mapOptions = {
     zoom: 17,
     center: {lat: -33.8667, lng: 151.1955,},

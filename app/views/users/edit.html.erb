@@ -1,12 +1,22 @@
 <% content_for :title, "Editing user" %>
-
-<h1>Editing user</h1>
-
-<%= render "form", user: @user %>
-
-<br>
-
-<div>
-  <%= link_to "Show this user", @user %> |
-  <%= link_to "Back to users", users_path %>
+<div class="min-x-screen min-y-screen flex-col">
+  <div class="flex justify-center y-1/2 flex-col">
+    <%= form_with model: @user, local: true do |f| %>
+      <div class= "input input-bordered flex items-center gap-2">
+        <%= f.label :name, class: "grow" %>
+        <%= f.text_field :name, class: "grow" %>
+      </div>
+      <div class= "input input-bordered flex items-center gap-2">
+        <%= f.label :email, class: "grow" %>
+        <%= f.email_field :email, class: "grow" %>
+      </div>
+      <div class= "m-5">
+        <%= f.submit "更新", class: "btn btn-wide btn-primary" %>
+      </div>
+    <% end %>
+    
+      <div>
+        <%= link_to "ログアウト", :logout, data: {turbo_method: :delete} %>
+      </div>
+  </div>
 </div>
