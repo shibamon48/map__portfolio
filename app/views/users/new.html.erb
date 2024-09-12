@@ -1,2 +1,28 @@
 <h1> 会員登録 </h1>
-<%= render "user", user: @user %>
+
+<div class="flex justify-center w-screen h-screen bg-lime-100">
+  <div class="flex-col my-40">
+    <h1 class="text-5xl font-bold">会員登録</h1>
+    <%= form_with model: @user, local: true do |f| %>
+      <div class= "my-5">
+        <%= f.label :name %>
+        <%= f.text_field :name %>
+      </div>
+      <div class= "my-5">
+        <%= f.label :email %>
+        <%= f.email_field :email %>
+      </div>
+      <div class= "my-5">
+        <%= f.label :password %>
+        <%= f.password_field :password %>
+      </div>
+      <div class= "my-5">
+        <%= f.label :password_confirmation %>
+        <%= f.password_field :password_confirmation %>
+      </div>
+      <%= f.submit "login", class: "btn btn-primary" %>
+    <% end %>
+  </div>
+  <%= link_to "top", "/"%>
+
+</div>
