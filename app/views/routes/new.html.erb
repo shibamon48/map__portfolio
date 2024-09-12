@@ -3,7 +3,7 @@
   </div>
   <% if logged_in? %>
     <div class="absolute bottom-[100px] right-2">
-      <button id="start" class="bg-blue-500 w-16 h-16 inline-block rounded-full">作成
+      <button id="start" class="hidden bg-blue-500 w-16 h-16 inline-block rounded-full z-50">作成
       </button>
     </div>
     <div class="absolute bottom-20 left-1/2 transform -translate-x-1/2">
@@ -15,8 +15,8 @@
 
 
 
-<script async defer src="https://maps.googleapis.com/maps/api/js?key=<%= ENV["MAP_API_KEY"] %>&libraries=drawing,places,marker&callback=initMap">
+<script src="https://maps.googleapis.com/maps/api/js?key=<%= ENV["MAP_API_KEY"] %>&libraries=drawing,places,marker&callback=initMap">
 </script>
 
 <%= include_gon %>
-<%= javascript_include_tag "map" %>
+<%= javascript_include_tag "map", "data-turbo-track": "reload", async: true %>

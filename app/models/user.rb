@@ -1,8 +1,7 @@
 class User < ApplicationRecord
   authenticates_with_sorcery!
 
-  has_many :routes, through: :exploration_routes
-  has_many :exploration_routes, dependent: :destroy
+  has_many :routes
 
   validates :name, presence: true
   validates :password, length: { minimum: 3 }, if: -> { new_record? || changes[:crypted_password] }

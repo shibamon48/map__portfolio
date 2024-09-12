@@ -1,5 +1,4 @@
 const apiKey = gon.map_api_key
-let mypathValues = gon.mypathValues
 console.log(mypathValues);
 let map;
 let drawingManager;
@@ -8,21 +7,27 @@ let polylines = [];
 var snappedPolylines = [];
 let snappedPathvalues = [];
 let snappedCoordinates = [];
-const start_button = document.getElementById('start');
-
-document.addEventListener('turbo:load', function() {
-  initMap();
-});
+var start_button = document.getElementById('start');
+let mypathValues = gon.mypathValues;
 
 
-function initMap() {
+// document.addEventListener('turbo:load', function() {
+  
+//   initMap();
+// });
+
+
+function initialize() {
+  let mypathValues = gon.mypathValues;
+
   let mapOptions = {
     zoom: 17,
     center: {lat: -33.8667, lng: 151.1955,},
     disableDefaultUI: true
   };
   map = new google.maps.Map(document.getElementById('map'), mapOptions);
-
+  start_button.style.display = 'block';
+  
   if (mypathValues != null) {
       for ( let i = 0; i < mypathValues.length; i++) {
         let snappedCoordinates = mypathValues[i];
@@ -173,4 +178,6 @@ function savePolylines(snappedPolyline) {
 }
 
 // ページ読み込み時にinitializeを実行
-window.addEventListener('load', initialize);
+window.addEventListener('turbo:load', function(){
+  window.setTimeout(initialize, 500);
+});
