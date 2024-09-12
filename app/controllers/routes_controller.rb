@@ -1,8 +1,8 @@
 require 'google_maps_service/polyline' 
 
 class RoutesController < ApplicationController
-  skip_before_action :require_login, only: %i[ new create ]
-  
+  skip_before_action :require_login, only: %i[ new ]
+
   def new
     @user = current_user
     gon.map_api_key = ENV["MAP_API_KEY"]
