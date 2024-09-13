@@ -10,14 +10,16 @@ let editPathValues = [];
 let snappedCoordinates = [];
 var start_button = document.getElementById('start');
 let mypathValues = gon.mypathValues;
-let isPolylineSelected = false; 
+let isPolylineSelected = false;
+const input = document.getElementById("pac-input");
+const searchBox = new google.maps.places.SearchBox(input);
+// なんだこの量...
 
 function initialize() {
   let mypathValues = gon.mypathValues;
-
   let mapOptions = {
-    zoom: 17,
-    center: {lat: -33.8667, lng: 151.1955,},
+    zoom: 16,
+    center: {lat: 35.661796, lng: 139.697436},
     disableDefaultUI: true
   };
   map = new google.maps.Map(document.getElementById('map'), mapOptions);
@@ -31,15 +33,15 @@ function initialize() {
   }
 
   // 検索バーを右上に表示
-  map.controls[google.maps.ControlPosition.RIGHT_TOP].push(
+  map.controls[google.maps.ControlPosition.LEFT_TOP].push(
       document.getElementById('bar'));
   let autocomplete = new google.maps.places.Autocomplete(
       document.getElementById('autoc'));
   autocomplete.bindTo('bounds', map);
   autocomplete.addListener('place_changed', function() {
     let place = autocomplete.getPlace();
+    map.fitBounds(place.geometry.viewport);
     if (place.geometry.viewport) {
-      map.fitBounds(place.geometry.viewport);
     } else {
       map.setCenter(place.geometry.location);
       map.setZoom(17);
@@ -235,5 +237,5 @@ function savePolylines(snappedPolyline) {
 
 // ページ読み込み時にinitializeを実行
 window.addEventListener('turbo:load', function(){
-  window.setTimeout(initialize, 500);
+  window.setTimeout(initialize, 100);
 });

@@ -1,5 +1,8 @@
-<div class="container relative flex h-screen w-screen">
-  <div id="map" class="w-full">
+<div class="relative flex min-h-screen min-w-screen">
+  <div id="bar">
+    <input id="autoc" class="controls fixed top-2 right-5 h-10 w-52 z-50 bg-[#ffedd5] text-black" type="text" placeholder="Search Box" />
+  </div>
+  <div id="map" class="w-screen">
   </div>
   <% if logged_in? %>
     <div class="absolute bottom-[100px] right-2">
