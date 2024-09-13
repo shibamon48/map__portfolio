@@ -9,6 +9,7 @@ let snappedPathvalues = [];
 let editPathValues = [];
 let snappedCoordinates = [];
 var start_button = document.getElementById('start');
+var dottedPolyline = null;
 let mypathValues = gon.mypathValues;
 let isPolylineSelected = false;
 const input = document.getElementById("pac-input");
@@ -98,8 +99,10 @@ function completed() {
   const complete = document.getElementById('complete');
   complete.style.display = 'none';
   complete.removeEventListener('click', completed);
-}
-
+  if (dottedPolyline) {
+    dottedPolyline.setMap(null);
+    dottedPolyline = null;}
+  }
 
 // ポリラインをAPIに投げて実際の道路にスナップさせ、描画
 // getAtでLatLngを取得, toUrlValueで緯度経度を文字列に変換
@@ -143,6 +146,10 @@ function drawSnappedPolyline(snappedCoordinates) {
   });
 
   snappedPolyline.setMap(map);
+  if (dottedPolyline) {
+    dottedPolyline.setMap(null);
+    dottedPolyline = null;
+  }
 
   google.maps.event.addListener(snappedPolyline, 'click', function(event) {
     if (isPolylineSelected) {
@@ -162,7 +169,7 @@ function drawSnappedPolyline(snappedCoordinates) {
       strokeOpacity: 0.8,
       scale: 4,
     };
-    let dottedPolyline = new google.maps.Polyline({
+    dottedPolyline = new google.maps.Polyline({
       path: editPathValues,
       strokeOpacity: 0,
       icons: [
@@ -180,10 +187,9 @@ function drawSnappedPolyline(snappedCoordinates) {
     start_button.style.display = 'none';
     drawingManager.setDrawingMode(google.maps.drawing.OverlayType.POLYLINE);
     let completeButton;
-    if (!completeButton) { // 完了ボタンあれば表示しない
+    if (!completeButton) {
       showCompleteButton();
     }
-    dottedPolyline.setMap(null);
     deleteOldPath(editPathValues);
     isPolylineSelected = false;
 });
@@ -237,5 +243,5 @@ function savePolylines(snappedPolyline) {
 
 // ページ読み込み時にinitializeを実行
 window.addEventListener('turbo:load', function(){
-  window.setTimeout(initialize, 100);
+  window.setTimeout(initialize, 200);
 });
