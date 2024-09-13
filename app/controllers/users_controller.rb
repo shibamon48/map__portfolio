@@ -14,7 +14,6 @@ class UsersController < ApplicationController
 
       if @user.save
         session[:user_id] = @user.id
-        flash[:success] =
         redirect_to new_route_path
       else
         flash.now[:error] = "作成に失敗しました。"
