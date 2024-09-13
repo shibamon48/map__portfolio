@@ -9,7 +9,7 @@ class UserSessionsController < ApplicationController
     if @user
       redirect_to new_route_path
     else
-      flash.now[:error] = "Login failed"
+      flash.now[:error] = "ログインに失敗しました。"
       render :new, status: :unprocessable_entity
     end
   end

@@ -1,22 +1,18 @@
 <% content_for :title, "Editing user" %>
-<div class="min-x-screen min-y-screen flex-col">
-  <div class="flex justify-center y-1/2 flex-col">
+<div class="flex justify-center w-screen h-screen bg-lime-100">
+<div class="flex-col my-40">
+<h1 class="text-5xl font-bold">マイページ</h1>
     <%= form_with model: @user, local: true do |f| %>
-      <div class= "input input-bordered flex items-center gap-2">
-        <%= f.label :name, class: "grow" %>
-        <%= f.text_field :name, class: "grow" %>
+      <div class="my-5">
+        <%= f.label :name, class: "form-label"%>
+        <%= f.text_field :name, class: "form-control" %>
       </div>
-      <div class= "input input-bordered flex items-center gap-2">
-        <%= f.label :email, class: "grow" %>
-        <%= f.email_field :email, class: "grow" %>
+      <div class="my-5">
+        <%= f.label :email, class: "form-label"%>
+        <%= f.text_field :email, class: "form-control" %>
       </div>
-      <div class= "m-5">
-        <%= f.submit "更新", class: "btn btn-wide btn-primary" %>
-      </div>
+      <%= f.submit "login", class: "btn btn-primary" %>
     <% end %>
-    
-      <div>
-        <%= link_to "ログアウト", :logout, data: {turbo_method: :delete} %>
-      </div>
+    <%= link_to "ログアウト", :logout, data: {turbo_method: :delete} %>
   </div>
 </div>
