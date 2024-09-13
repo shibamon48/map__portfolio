@@ -35,6 +35,22 @@ class RoutesController < ApplicationController
     path.save!
   end
 
+  def destroy
+    user = current_user
+    pathValues = params[:_json]
+    polylines = []
+    latlng = []
+
+    pathValues.each do |path|
+      latlng = [ path["lat"], path["lng"] ]
+      polylines.push(latlng)
+    end
+    encoded_path = GoogleMapsService::Polyline.encode(polylines)
+
+    path = Route.find_by(path: encoded_path, user_id: user.id)
+    path.destroy!
+  end
+
   private
   def route_params
     params.permit(:_json)

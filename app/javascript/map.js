@@ -6,16 +6,11 @@ let placeIdArray = [];
 let polylines = [];
 var snappedPolylines = [];
 let snappedPathvalues = [];
+let editPathValues = [];
 let snappedCoordinates = [];
 var start_button = document.getElementById('start');
 let mypathValues = gon.mypathValues;
-
-
-// document.addEventListener('turbo:load', function() {
-  
-//   initMap();
-// });
-
+let isPolylineSelected = false; 
 
 function initialize() {
   let mypathValues = gon.mypathValues;
@@ -68,7 +63,7 @@ function initialize() {
     }
   });
   drawingManager.setMap(map);
-
+  
   // ポリラインを描画したらsnapToRoadを実行
   // poly=ポリライン、path=ポリラインの座標
   drawingManager.addListener('polylinecomplete', function(poly) {
@@ -118,6 +113,7 @@ function runSnapToRoad(path) {
       drawSnappedPolyline(snappedCoordinates);
       start_button.style.display = 'block';
       savePolylines(snappedPolyline);
+      snappedPolylines.push(snappedPolyline);
       clearPolyline();
     });
 }
@@ -136,16 +132,76 @@ function processSnapToRoadResponse(data) {
 
 //　スナップされたポリラインを描画 
 function drawSnappedPolyline(snappedCoordinates) {
-  console.log(snappedCoordinates);
     snappedPolyline = new google.maps.Polyline({
     path: snappedCoordinates,
     strokeColor: '#4169e1',
     strokeWeight: 7,
     strokeOpacity: 0.6,
-    clickable: true
+    clickable: true,
   });
 
   snappedPolyline.setMap(map);
+
+  google.maps.event.addListener(snappedPolyline, 'click', function(event) {
+    if (isPolylineSelected) {
+      return;
+    }
+    isPolylineSelected = true;
+
+    let editPathValues = [];
+
+    let path = this.getPath();
+    for (let i = 0; i < path.getLength(); i++) {
+      editPathValues.push(path.getAt(i));
+    }
+    const lineSymbol = {
+      path: "M 0,-1 0,1",
+      strokeColor: '#ff4500',
+      strokeOpacity: 0.8,
+      scale: 4,
+    };
+    let dottedPolyline = new google.maps.Polyline({
+      path: editPathValues,
+      strokeOpacity: 0,
+      icons: [
+        {
+          icon: lineSymbol,
+          offset: '0',
+          repeat: '20px'
+        },
+      ]
+    });
+    this.setMap(null);
+    dottedPolyline.setMap(map);
+
+
+    start_button.style.display = 'none';
+    drawingManager.setDrawingMode(google.maps.drawing.OverlayType.POLYLINE);
+    let completeButton;
+    if (!completeButton) { // 完了ボタンあれば表示しない
+      showCompleteButton();
+    }
+    dottedPolyline.setMap(null);
+    deleteOldPath(editPathValues);
+    isPolylineSelected = false;
+});
+}
+
+function deleteOldPath(editPathValues) {
+  fetch('/route', {
+    method: "DELETE",
+    headers: {
+      'Content-Type': 'application/json',
+      'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]').content
+    },
+    body: JSON.stringify(editPathValues),
+  })
+  .then(response => {
+    if (!response.ok) {
+      throw new Error('Network response was not ok');
+    }
+  })
+  .catch(error => console.error('Error:', error));
 }
 
 function clearPolyline() {
