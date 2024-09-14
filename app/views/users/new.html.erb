@@ -2,7 +2,7 @@
 <div class="flex justify-center w-screen h-screen bg-lime-100">
 <div class="flex-col my-40">
     <h1 class="text-5xl font-bold">会員登録</h1>
-    <%= form_with model: @user, local: true do |f| %>
+    <%= form_with model: @user, remote: true, data: { "data-turbo": "false" } do |f| %>
       <div class= "my-5">
         <%= f.label :name %>
         <%= f.text_field :name %>
