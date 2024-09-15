@@ -1,5 +1,4 @@
 const apiKey = gon.map_api_key
-console.log(mypathValues);
 let map;
 let drawingManager;
 let placeIdArray = [];
@@ -215,6 +214,8 @@ function drawSnappedPolyline(snappedCoordinates) {
     }
     deleteOldPath(editPathValues);
     isPolylineSelected = false;
+    start_button.style.display = 'block';
+
 });
 }
 
