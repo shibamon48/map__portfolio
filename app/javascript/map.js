@@ -8,6 +8,8 @@ let snappedPathvalues = [];
 let editPathValues = [];
 let snappedCoordinates = [];
 var start_button = document.getElementById('start');
+var spot_button = document.getElementById('spot');
+var spot_complete = document.getElementById('spot_complete');
 var dottedPolyline = null;
 let mypathValues = gon.mypathValues;
 let isPolylineSelected = false;
@@ -87,25 +89,40 @@ function initialize() {
     }
   });
 
-// ボタンがクリックされた時
-buttonOpen.addEventListener('click', modalOpen);
-function modalOpen() {
-  modal.style.display = 'block';
-}
+  // スポット作成ボタンがクリックされた時
+  spot_button.addEventListener('click', function() {
+    spot_button.style.display = 'none';
+    google.maps.event.addListener(map, 'click', event => clickListener(event, map));
+    spot_complete.style.display = 'block';
+    spot_complete.addEventListener('click', function() {
+      spot_button.style.display = 'block';
+      spot_complete.style.display = 'none';
+      google.maps.event.clearListeners(map, 'click');
+    });
+  });
 
-// バツ印がクリックされた時
-buttonClose.addEventListener('click', modalClose);
-function modalClose() {
-  modal.style.display = 'none';
-}
 
-// モーダルコンテンツ以外がクリックされた時
-addEventListener('click', outsideClose);
-function outsideClose(e) {
-  if (e.target == modal) {
+  // ボタンがクリックされた時
+  buttonOpen.addEventListener('click', modalOpen);
+  function modalOpen() {
+    modal.style.display = 'block';
+  }
+
+  // バツ印がクリックされた時
+  buttonClose.addEventListener('click', modalClose);
+  function modalClose() {
     modal.style.display = 'none';
   }
-}
+
+  // モーダルコンテンツ以外がクリックされた時
+  addEventListener('click', outsideClose);
+  function outsideClose(e) {
+    if (e.target == modal) {
+      modal.style.display = 'none';
+    }
+  }
+
+
 }
 
 function showCompleteButton() {
@@ -173,6 +190,7 @@ function drawSnappedPolyline(snappedCoordinates) {
     dottedPolyline = null;
   }
 
+  // ポリラインにクリックイベントを付与
   google.maps.event.addListener(snappedPolyline, 'click', function(event) {
     if (isPolylineSelected) {
       return;
@@ -219,6 +237,7 @@ function drawSnappedPolyline(snappedCoordinates) {
 });
 }
 
+//クリックされたポリラインを削除
 function deleteOldPath(editPathValues) {
   fetch('/route', {
     method: "DELETE",
@@ -264,6 +283,69 @@ function savePolylines(snappedPolyline) {
   })
   .catch(error => console.error('Error:', error));
 }
+
+// スポットを設置
+function clickListener(event, map) {
+  const lat = event.latLng.lat();
+  const lng = event.latLng.lng();
+  const marker = new google.maps.Marker({
+    position: {lat, lng},
+    map
+  });
+  // スポットにクリックイベントを追加
+  marker.addListener('click', function() {
+    const spotInfo = document.getElementById('spotInfo');
+    spotInfo.style.display = 'block';
+    });
+  document.getElementById('save_form').addEventListener('click', function(e) {
+      e.preventDefault(); // ページ遷移を防ぐ
+      const form = document.getElementById('spot_form');
+      const formData = new FormData(form);
+      const data = {
+        name: formData.get('name'),
+        review: formData.get('review'),
+        latitude: lat,
+        longitude: lng,
+      };
+      fetch('/save_spot_data', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]').content
+        },
+        body: JSON.stringify(data)
+      })
+      .then(response => response.json())
+      .then(data => {
+        console.log("データが保存されました:", data);
+        // 保存後にフォームを閉じる
+        document.getElementById('form-container').style.display = 'none';
+      })
+      .catch(error => console.error('エラー:', error));
+    });
+    
+    google.maps.event.addListener(marker, 'click', function() {
+      const lat = marker.getPosition().lat();
+      const lng = marker.getPosition().lng();
+    
+      // 保存されたデータを取得する
+      fetch(`/get_spot_data?lat=${lat}&lng=${lng}`)
+      .then(response => response.json())
+      .then(data => {
+        if (data) {
+          // データがあれば表示
+          document.getElementById('name').textContent = data.name;
+          document.getElementById('body').textContent = data.body;
+        } else {
+          console.log('データが見つかりませんでした');
+        }
+      })
+      .catch(error => console.error('エラー:', error));
+    
+    });
+  
+}
+
 
 // ページ読み込み時にinitializeを実行
 window.addEventListener('turbo:load', function(){

@@ -5,6 +5,14 @@
   <div id="map" class="w-screen">
   </div>
   <% if logged_in? %>
+    <div class="absolute bottom-[200px] right-2">
+      <button id="spot" class=" bg-blue-500 w-16 h-16 inline-block rounded-full z-50">スポット
+      </button>
+    </div>
+    <div class="absolute bottom-20 left-1/2 transform -translate-x-1/2">
+      <button id="spot_complete" class="hidden bg-white w-16 h-16 inline-block rounded-full">スポット完了
+      </button>
+    </div>
     <div class="absolute bottom-[100px] right-2">
       <button id="start" class="hidden bg-blue-500 w-16 h-16 inline-block rounded-full z-50">作成
       </button>
@@ -32,6 +40,28 @@
       </div>
     </div>
 <% end %>
+
+  <div id="spotInfo" class="hidden mx-auto top-20" >
+    <button id="infoClose" class="bg-white w-16 h-16 inline-block rounded-full z-50">閉じる</button>
+    <div class="flex justify-center bg-lime-100">
+    <div class="flex-col my-40">
+      <%= form_with id: "spot_form" do |f|%>
+        <div class="my-5">
+          <%= f.label :name, class: "form-label"%>
+          <%= f.text_field :name, class: "form-control" %>
+        </div>
+        <div class="my-5">
+          <%= f.label :review, class: "form-label"%>
+          <%= f.text_field :review, class: "form-control" %>
+        </div>
+        <%= f.hidden_field :latitude, id: "lat" %>
+        <%= f.hidden_field :longitude, id: "lng" %>
+        <%= f.submit "登録", type: "button", id: "save_form", class: "btn btn-primary" %>
+      <% end %>
+    </div>
+  </div>
+      
+  </div>
 </div>
 
 
