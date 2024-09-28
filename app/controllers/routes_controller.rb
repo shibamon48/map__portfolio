@@ -5,6 +5,8 @@ class RoutesController < ApplicationController
 
   def new
     @user = current_user
+    spots = Spot.all
+    gon.spots = spots
     gon.map_api_key = ENV["MAP_API_KEY"]
 
     routes = Route.where(user_id: @user.id) if @user

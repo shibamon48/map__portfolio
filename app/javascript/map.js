@@ -8,6 +8,8 @@ let snappedPathvalues = [];
 let editPathValues = [];
 let snappedCoordinates = [];
 var start_button = document.getElementById('start');
+var spot_button = document.getElementById('spot');
+var spot_complete = document.getElementById('spot_complete');
 var dottedPolyline = null;
 let mypathValues = gon.mypathValues;
 let isPolylineSelected = false;
@@ -19,6 +21,7 @@ const buttonClose = document.getElementsByClassName('modalClose')[0];
 // なんだこの量...
 
 function initialize() {
+  let spots = gon.spots;
   let mypathValues = gon.mypathValues;
   let mapOptions = {
     zoom: 16,
@@ -87,25 +90,70 @@ function initialize() {
     }
   });
 
-// ボタンがクリックされた時
-buttonOpen.addEventListener('click', modalOpen);
-function modalOpen() {
-  modal.style.display = 'block';
-}
 
-// バツ印がクリックされた時
-buttonClose.addEventListener('click', modalClose);
-function modalClose() {
-  modal.style.display = 'none';
-}
 
-// モーダルコンテンツ以外がクリックされた時
-addEventListener('click', outsideClose);
-function outsideClose(e) {
-  if (e.target == modal) {
+  console.log(spots);
+  for(i = 0; i < spots.length; i++) {
+  const lat = spots[i].latitude;
+  const lng = spots[i].longitude;
+  const marker = new google.maps.Marker({
+    position: {lat, lng},
+    map
+  });
+  google.maps.event.addListener(marker, 'click', function() {
+    // 保存されたデータを取得する
+    fetch(`/get_spot_data?lat=${lat}&lng=${lng}`)
+    .then(response => response.json())
+    .then(data => {
+      if (data) {
+        // データがあれば表示
+        console.log(data);
+        document.getElementById('spotInfo').style.display = 'block';
+        document.getElementById('name').value = data.name;
+        document.getElementById('review').value = data.review;
+      } else {
+        console.log('データが見つかりませんでした');
+      }
+    })
+    .catch(error => console.error('エラー:', error));
+  
+  });
+  }
+
+
+
+  // スポット作成ボタンがクリックされた時
+  spot_button.addEventListener('click', function() {
+    spot_button.style.display = 'none';
+    google.maps.event.addListener(map, 'click', event => clickListener(event, map));
+    spot_complete.style.display = 'block';
+    spot_complete.addEventListener('click', function() {
+      spot_button.style.display = 'block';
+      spot_complete.style.display = 'none';
+      google.maps.event.clearListeners(map, 'click');
+    });
+  });
+
+
+  // ボタンがクリックされた時
+  buttonOpen.addEventListener('click', modalOpen);
+  function modalOpen() {
+    modal.style.display = 'block';
+  }
+
+  // バツ印がクリックされた時
+  buttonClose.addEventListener('click', modalClose);
+  function modalClose() {
     modal.style.display = 'none';
   }
-}
+
+  // モーダルコンテンツ以外がクリックされた時
+  addEventListener('click', outsideClose);
+  function outsideClose(e) {
+    if (e.target == modal) {
+      modal.style.display = 'none';
+    }
+  }
 }
 
 function showCompleteButton() {
@@ -173,6 +221,7 @@ function drawSnappedPolyline(snappedCoordinates) {
     dottedPolyline = null;
   }
 
+  // ポリラインにクリックイベントを付与
   google.maps.event.addListener(snappedPolyline, 'click', function(event) {
     if (isPolylineSelected) {
       return;
@@ -215,10 +264,10 @@ function drawSnappedPolyline(snappedCoordinates) {
     deleteOldPath(editPathValues);
     isPolylineSelected = false;
     start_button.style.display = 'block';
-
 });
 }
 
+//クリックされたポリラインを削除
 function deleteOldPath(editPathValues) {
   fetch('/route', {
     method: "DELETE",
@@ -264,6 +313,51 @@ function savePolylines(snappedPolyline) {
   })
   .catch(error => console.error('Error:', error));
 }
+
+// スポットを設置
+function clickListener(event, map) {
+  const lat = event.latLng.lat();
+  const lng = event.latLng.lng();
+  const marker = new google.maps.Marker({
+    position: {lat, lng},
+    map
+  });
+  // スポットにクリックイベントを追加
+  marker.addListener('click', function() {
+    const spotInfo = document.querySelector('#spotInfo');
+    spotInfo.style.display = 'block';
+    const infoClose = document.querySelector('#infoClose');
+    infoClose.addEventListener('click', function() {
+      spotInfo.style.display = 'none';
+    });
+  });
+  document.querySelector('#save_form').addEventListener('click', function(e) {
+      e.preventDefault(); // ページ遷移を防ぐ
+      const form = document.getElementById('spot_form');
+      const formData = new FormData(form);
+      const data = {
+        name: formData.get('name'),
+        review: formData.get('review'),
+        latitude: lat,
+        longitude: lng,
+      };
+      fetch('/save_spot_data', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]').content
+        },
+        body: JSON.stringify(data)
+      })
+      .then(response => response.json())
+      .then(data => {
+        document.getElementById('spotInfo').style.display = 'none';
+      })
+      .catch(error => console.error(error));
+      spotInfo.style.display = 'none';
+    });  
+}
+
 
 // ページ読み込み時にinitializeを実行
 window.addEventListener('turbo:load', function(){
