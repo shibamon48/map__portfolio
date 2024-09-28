@@ -7,11 +7,17 @@ class SpotsController < ApplicationController
     @spot = Spot.new(spot_params)
 
     if @spot.save!
-      render json: @pin, status: :ok
+      render json: { message: 'データが保存されました', spot: @spot }, status: :ok
     end
   end
 
   def get_spot_data
+    @spot = Spot.find_by(latitude: params[:lat], longitude: params[:lng])
+    if @spot
+      render json: @spot, status: :ok
+    else
+      render json: { message: "Not Found" }, status: :not_found
+    end
   end
 
   private

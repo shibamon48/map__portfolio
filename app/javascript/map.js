@@ -21,6 +21,7 @@ const buttonClose = document.getElementsByClassName('modalClose')[0];
 // なんだこの量...
 
 function initialize() {
+  let spots = gon.spots;
   let mypathValues = gon.mypathValues;
   let mapOptions = {
     zoom: 16,
@@ -89,6 +90,38 @@ function initialize() {
     }
   });
 
+
+
+  console.log(spots);
+  for(i = 0; i < spots.length; i++) {
+  const lat = spots[i].latitude;
+  const lng = spots[i].longitude;
+  const marker = new google.maps.Marker({
+    position: {lat, lng},
+    map
+  });
+  google.maps.event.addListener(marker, 'click', function() {
+    // 保存されたデータを取得する
+    fetch(`/get_spot_data?lat=${lat}&lng=${lng}`)
+    .then(response => response.json())
+    .then(data => {
+      if (data) {
+        // データがあれば表示
+        console.log(data);
+        document.getElementById('spotInfo').style.display = 'block';
+        document.getElementById('name').value = data.name;
+        document.getElementById('review').value = data.review;
+      } else {
+        console.log('データが見つかりませんでした');
+      }
+    })
+    .catch(error => console.error('エラー:', error));
+  
+  });
+  }
+
+
+
   // スポット作成ボタンがクリックされた時
   spot_button.addEventListener('click', function() {
     spot_button.style.display = 'none';
@@ -121,8 +154,6 @@ function initialize() {
       modal.style.display = 'none';
     }
   }
-
-
 }
 
 function showCompleteButton() {
@@ -233,7 +264,6 @@ function drawSnappedPolyline(snappedCoordinates) {
     deleteOldPath(editPathValues);
     isPolylineSelected = false;
     start_button.style.display = 'block';
-
 });
 }
 
@@ -294,10 +324,14 @@ function clickListener(event, map) {
   });
   // スポットにクリックイベントを追加
   marker.addListener('click', function() {
-    const spotInfo = document.getElementById('spotInfo');
+    const spotInfo = document.querySelector('#spotInfo');
     spotInfo.style.display = 'block';
+    const infoClose = document.querySelector('#infoClose');
+    infoClose.addEventListener('click', function() {
+      spotInfo.style.display = 'none';
     });
-  document.getElementById('save_form').addEventListener('click', function(e) {
+  });
+  document.querySelector('#save_form').addEventListener('click', function(e) {
       e.preventDefault(); // ページ遷移を防ぐ
       const form = document.getElementById('spot_form');
       const formData = new FormData(form);
@@ -317,33 +351,11 @@ function clickListener(event, map) {
       })
       .then(response => response.json())
       .then(data => {
-        console.log("データが保存されました:", data);
-        // 保存後にフォームを閉じる
-        document.getElementById('form-container').style.display = 'none';
+        document.getElementById('spotInfo').style.display = 'none';
       })
-      .catch(error => console.error('エラー:', error));
-    });
-    
-    google.maps.event.addListener(marker, 'click', function() {
-      const lat = marker.getPosition().lat();
-      const lng = marker.getPosition().lng();
-    
-      // 保存されたデータを取得する
-      fetch(`/get_spot_data?lat=${lat}&lng=${lng}`)
-      .then(response => response.json())
-      .then(data => {
-        if (data) {
-          // データがあれば表示
-          document.getElementById('name').textContent = data.name;
-          document.getElementById('body').textContent = data.body;
-        } else {
-          console.log('データが見つかりませんでした');
-        }
-      })
-      .catch(error => console.error('エラー:', error));
-    
-    });
-  
+      .catch(error => console.error(error));
+      spotInfo.style.display = 'none';
+    });  
 }
 
 
