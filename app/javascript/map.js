@@ -90,36 +90,72 @@ function initialize() {
     }
   });
 
-
-
-  console.log(spots);
-  for(i = 0; i < spots.length; i++) {
-  const lat = spots[i].latitude;
-  const lng = spots[i].longitude;
-  const marker = new google.maps.Marker({
-    position: {lat, lng},
-    map
-  });
-  google.maps.event.addListener(marker, 'click', function() {
-    // 保存されたデータを取得する
-    fetch(`/get_spot_data?lat=${lat}&lng=${lng}`)
-    .then(response => response.json())
-    .then(data => {
-      if (data) {
-        // データがあれば表示
-        console.log(data);
-        document.getElementById('spotInfo').style.display = 'block';
-        document.getElementById('name').value = data.name;
-        document.getElementById('review').value = data.review;
-      } else {
-        console.log('データが見つかりませんでした');
-      }
-    })
-    .catch(error => console.error('エラー:', error));
+  // スポットを設置
+  spots.forEach((spot) => {
+    const marker = new google.maps.Marker({
+      position: { lat: spot.latitude, lng: spot.longitude },
+      map: map,
+    });
+    // マーカーにデータを持たせる
+    marker.spotData = {
+      name: spot.name,
+      review: spot.review,
+      photo: spot.photo_url
+    };
   
-  });
-  }
+    // クリックイベントでデータを使用
+    google.maps.event.addListener(marker, 'click', function() {
+      const data = marker.spotData;
+      
+      document.querySelector('#spotInfo').style.display = 'block';
+  
+      // 画像表示の処理
+      if (data.photo) {
+        document.querySelector('#new_image').src = data.photo;
+      } else {
+        document.querySelector('#new_image').src = ''; // 画像がない場合の処理
+      }
+  
+      // その他のデータをフォームに表示
+      document.querySelector('#spot_name').value = data.name;
+      document.querySelector('#spot_review').value = data.review;
 
+  // for(i = 0; i < spots.length; i++) {
+  //   const lat = spots[i].latitude;
+  //   const lng = spots[i].longitude;
+  //   const marker = new google.maps.Marker({
+  //     position: {lat, lng},
+  //     map
+  //   });
+  //   //読取用のクリックイベント追加
+  //   google.maps.event.addListener(marker, 'click', function() {
+      // 保存されたデータを取得する
+      // fetch(`/get_spot_data?lat=${lat}&lng=${lng}`)
+      // .then(response => response.json())
+      // .then(data => {
+      //   if (data) {
+      //     // データがあれば表示
+      //     console.log(data);
+      //     document.querySelector('#spotInfo').style.display = 'block';
+      //     if (data.photo) {
+      //       document.querySelector('#new_image').src = data.photo;
+      //     } else {
+      //       document.querySelector('#new_image').src = ''; // 画像がない場合の処理
+      //     }
+      //     document.querySelector('#name').value = data.name;
+      //     document.querySelector('#review').value = data.review;
+      //   } else {
+      //     console.log('データが見つかりませんでした');
+      //   }
+      // })
+      // .catch(error => console.error('エラー:', error));
+
+      const infoClose = document.querySelector('#infoClose');
+      infoClose.addEventListener('click', function() {
+        spotInfo.style.display = 'none';
+      });
+    });
+  });
 
 
   // スポット作成ボタンがクリックされた時
@@ -264,7 +300,7 @@ function drawSnappedPolyline(snappedCoordinates) {
     deleteOldPath(editPathValues);
     isPolylineSelected = false;
     start_button.style.display = 'block';
-});
+  });
 }
 
 //クリックされたポリラインを削除
@@ -324,30 +360,40 @@ function clickListener(event, map) {
   });
   // スポットにクリックイベントを追加
   marker.addListener('click', function() {
+    // フォームを初期化
+    document.querySelector('#spot_name').value = '';
+    document.querySelector('#spot_review').value = '';
+    document.querySelector('#new_image').src = '';
+    
     const spotInfo = document.querySelector('#spotInfo');
     spotInfo.style.display = 'block';
+
     const infoClose = document.querySelector('#infoClose');
     infoClose.addEventListener('click', function() {
       spotInfo.style.display = 'none';
     });
+    
   });
   document.querySelector('#save_form').addEventListener('click', function(e) {
       e.preventDefault(); // ページ遷移を防ぐ
+
+      document.querySelector('#lat').value = lat;
+      document.querySelector('#lng').value = lng;
       const form = document.getElementById('spot_form');
       const formData = new FormData(form);
-      const data = {
-        name: formData.get('name'),
-        review: formData.get('review'),
-        latitude: lat,
-        longitude: lng,
-      };
+      // const data = {
+      //   name: formData.get('name'),
+      //   review: formData.get('review'),
+      //   photo: formData.get('photo').name,
+      //   latitude: lat,
+      //   longitude: lng,
+      // };
       fetch('/save_spot_data', {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json',
           'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]').content
         },
-        body: JSON.stringify(data)
+        body: formData
       })
       .then(response => response.json())
       .then(data => {

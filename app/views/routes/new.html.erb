@@ -45,7 +45,12 @@
     <button id="infoClose" class="btn w-16 h-16 inline-block rounded-full z-50">閉じる</button>
     <div class="flex justify-center bg-lime-100">
       <div class="flex-col my-40">
-        <%= form_with id: "spot_form" do |f|%>
+        <%= form_with model: @spot, url: save_spot_data_path, id: "spot_form" do |f|%>
+          <div class="my-5">
+            <%= f.label :photo, class: "form-label"%>
+            <img id="new_image" class="w-40 h-40" src="">
+            <%= f.file_field :photo, class: "form-control" %>
+          </div>
           <div class="my-5">
             <%= f.label :name, class: "form-label"%>
             <%= f.text_field :name, class: "form-control" %>
