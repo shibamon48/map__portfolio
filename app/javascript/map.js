@@ -106,7 +106,7 @@ function initialize() {
     // クリックイベントでデータを使用
     google.maps.event.addListener(marker, 'click', function() {
       const data = marker.spotData;
-
+      
       document.querySelector('#spotInfo').style.display = 'block';
   
       // 画像表示の処理
@@ -360,12 +360,19 @@ function clickListener(event, map) {
   });
   // スポットにクリックイベントを追加
   marker.addListener('click', function() {
+    // フォームを初期化
+    document.querySelector('#spot_name').value = '';
+    document.querySelector('#spot_review').value = '';
+    document.querySelector('#new_image').src = '';
+    
     const spotInfo = document.querySelector('#spotInfo');
     spotInfo.style.display = 'block';
+
     const infoClose = document.querySelector('#infoClose');
     infoClose.addEventListener('click', function() {
       spotInfo.style.display = 'none';
     });
+    
   });
   document.querySelector('#save_form').addEventListener('click', function(e) {
       e.preventDefault(); // ページ遷移を防ぐ
